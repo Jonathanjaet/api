@@ -1,33 +1,53 @@
 using Microsoft.AspNetCore.Mvc;
+using api.Models;
 
 namespace api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class PaymentController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        private static readonly List<Payment> Payments = new()
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+            new Payment { Id = 1, Amount = 100, Currency = "USD", Status = "Pending" },
+            new Payment { Id = 2, Amount = 200, Currency = "EUR", Status = "Approved" },
+            new Payment { Id = 3, Amount = 300, Currency = "GBP", Status = "Declined" },
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<PaymentController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public PaymentController(ILogger<PaymentController> logger)
         {
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet("{id}")]
+        public ActionResult<Payment> Get(int id)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var payment = Payments.FirstOrDefault(p => p.Id == id);
+            if (payment == null)
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                return NotFound();
+            }
+
+            return Ok(payment);
+        }
+
+        [HttpPost]
+        public ActionResult<Payment> Post([FromBody] Payment payment)
+        {
+            // Validate the payment data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Process the payment
+            payment.Id = Payments.Count + 1;
+            payment.Status = "Pending";
+            Payments.Add(payment);
+
+            return CreatedAtAction(nameof(Get), new { id = payment.Id }, payment);
         }
     }
 }
