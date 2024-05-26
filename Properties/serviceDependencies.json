@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "secrets1": {
+      "type": "secrets"
+    },
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "DatabaseManager"
+    },
+    "sqlite1": {
+      "type": "sqlite",
+      "connectionId": "DatabaseManagerApi"
+    }
+  }
+}

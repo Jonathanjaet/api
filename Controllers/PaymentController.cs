@@ -6,6 +6,7 @@ namespace api.Controllers
     [Route("[controller]")]
     public class PaymentController : ControllerBase
     {
+        // Pruebas sin uso
         private static readonly List<Payment> Payments = new()
         {
             new Payment { Id = 1, Amount = 100, Currency = "USD", Status = "Pending" },
@@ -47,6 +48,28 @@ namespace api.Controllers
             Payments.Add(payment);
 
             return CreatedAtAction(nameof(Get), new { id = payment.Id }, payment);
+        } 
+        
+        //Implementacion
+        private readonly DatabaseManager _databaseManager;
+
+        /*public PaymentController(DatabaseManager databaseManager)
+        {
+            _databaseManager = databaseManager;
+        }*/
+
+        [HttpGet]
+        public async Task<IActionResult> GetProducts()
+        {
+            try
+            {
+                List<Payment> products = await _databaseManager.GetProductsAsync();
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
